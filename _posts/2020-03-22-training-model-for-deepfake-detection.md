@@ -8,9 +8,11 @@ Deepfakes are synthetic videos created using deep learning techniques, where an 
 
 I took on this project with the goal of identifying tools for detecting deepfake videos. To do so, I manually annotated 300 minutes of video (totaling 449,977 frames) for real/fake faces using the Clay Sciences video annotation platform. These annotations were used to train a Single Shot MultiBox Detector (SSD) model with Keras and TensorFlow on Google Cloud Platform. Results demonstrate that the trained model is particularly adept at predicting fake faces. Specifically, when the model is very confident about its prediction of a face as fake, it is virtually 100% accurate. Some examples of the trained model's output are below. In these examples, I fed the model frames extracted from existing deepfake videos and had it predict which faces were real or fake.
 
+![Test](/assets/images/back_to_the_future_00322_predict.png)
+
 <figure>
-  <img src="../assets/images/back_to_the_future_00322_predict.png" alt="drawing" width="450"/>
-  <img src="../assets/images/back_to_the_future_01642_predict.png" alt="drawing" width="450"/>
+  <img src="/assets/images/back_to_the_future_00322_predict.png" alt="drawing" width="450"/>
+  <img src="/assets/images/back_to_the_future_01642_predict.png" alt="drawing" width="450"/>
     <figcaption>**Tom Holland and Robert Downey Jr. inserted into *Back to the Future***</figcaption>
 </figure>
 <p>&nbsp;</p>
