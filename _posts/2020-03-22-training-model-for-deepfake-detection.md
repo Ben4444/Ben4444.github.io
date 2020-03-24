@@ -9,23 +9,23 @@ Deepfakes are synthetic videos created using deep learning techniques, where an 
 I took on this project with the goal of identifying tools for detecting deepfake videos. To do so, I manually annotated 300 minutes of video (totaling 449,977 frames) for real/fake faces using the Clay Sciences video annotation platform. These annotations were used to train a Single Shot MultiBox Detector (SSD) model with Keras and TensorFlow on Google Cloud Platform. Results demonstrate that the trained model is particularly adept at predicting fake faces. Specifically, when the model is very confident about its prediction of a face as fake, it is virtually 100% accurate. Some examples of the trained model's output are below. In these examples, I fed the model frames extracted from existing deepfake videos and had it predict which faces were real or fake.
 
 <p float="left">
-  <img src="/assets/images/back_to_the_future_00322_predict.png" alt="drawing" width="500"/>
-  <img src="/assets/images/back_to_the_future_01642_predict.png" alt="drawing" width="500"/>
+  <img src="/assets/images/back_to_the_future_00322_predict.png" alt="drawing" width="480"/>
+  <img src="/assets/images/back_to_the_future_01642_predict.png" alt="drawing" width="480"/>
     <figcaption><strong>Tom Holland and Robert Downey Jr. inserted into <i>Back to the Future</i></strong></figcaption>
 </p>
 <p>&nbsp;</p>
 
-<figure>
+<p float="left">
   <img src="/assets/images/home_alone_01762_predict.png" alt="drawing" width="450"/>
     <figcaption><strong>Sylvester Stallone inserted into <i>Home Alone</i></strong></figcaption>
-</figure>
+</p>
 <p>&nbsp;</p>
 
-<figure>
+<p float="left">
   <img src="/assets/images/silence_of_the_lambs_00260_predict.png" alt="drawing" width="450"/>
   <img src="/assets/images/silence_of_the_lambs_01988_predict.png" alt="drawing" width="450"/>
     <figcaption><strong>Willem Dafoe inserted into <i>The Silence of the Lambs</i></strong></figcaption>
-</figure>
+</p>
 <p>&nbsp;</p>
 
 This project demonstrates that deep learning models trained for object detection are a promising method for curbing the potential influence of deepfakes.
