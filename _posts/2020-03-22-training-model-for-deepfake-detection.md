@@ -16,14 +16,14 @@ I took on this project with the goal of identifying tools for detecting deepfake
 <p>&nbsp;</p>
 
 <p float="left">
-  <img src="/assets/images/home_alone_01762_predict.png" alt="drawing" width="450"/>
+  <img src="/assets/images/home_alone_01762_predict.png" alt="drawing" width="460"/>
     <figcaption><strong>Sylvester Stallone inserted into <i>Home Alone</i></strong></figcaption>
 </p>
 <p>&nbsp;</p>
 
 <p float="left">
-  <img src="/assets/images/silence_of_the_lambs_00260_predict.png" alt="drawing" width="450"/>
-  <img src="/assets/images/silence_of_the_lambs_01988_predict.png" alt="drawing" width="450"/>
+  <img src="/assets/images/silence_of_the_lambs_00260_predict.png" alt="drawing" width="460"/>
+  <img src="/assets/images/silence_of_the_lambs_01988_predict.png" alt="drawing" width="460"/>
     <figcaption><strong>Willem Dafoe inserted into <i>The Silence of the Lambs</i></strong></figcaption>
 </p>
 <p>&nbsp;</p>
