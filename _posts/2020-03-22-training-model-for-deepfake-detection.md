@@ -28,7 +28,7 @@ I took on this project with the goal of identifying tools for detecting deepfake
 </p>
 <p>&nbsp;</p>
 
-This project demonstrates that deep learning models trained for object detection are a promising method for curbing the potential influence of deepfakes.
+This project demonstrates that deep learning models trained for object detection are a promising method for curbing the potential influence of deepfakes. A more detailed write-up of the project is below.
 
 # Introduction
 Thanks to the widespread availability and relative ease of use of editing tools, manipulation of media content is becoming more commonplace in modern society, largely through social media platforms such as Facebook, Instagram, and Snapchat. Such alterations, if they go viral, have the potential to spread misinformation that may sway public perception and opinion. In short, manipulated videos can make it appear as if events happened, when in reality they did not. One need look no further than the recent doctored videos of United States Speaker of the House [Nancy Pelosi](https://www.nytimes.com/2019/05/24/us/politics/pelosi-doctored-video.html) and U.S. presidential candidate [Joe Biden](https://www.cnbc.com/2020/01/02/joe-biden-video-edited-to-suggest-racist-remark-went-viral.html), which were edited to create the appearance that the speakers were slurring their speech and making racist remarks, respectively, and were shared through social media. 
