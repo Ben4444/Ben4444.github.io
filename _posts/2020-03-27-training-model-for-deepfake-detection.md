@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Addressing the real 'fake news': Training a deep learning model for deepfake detection"
-date: 2020-03-22
+date: 2020-03-27
 ---
 # Summary
 Deepfakes are synthetic videos created using deep learning techniques, where an individual’s face is inserted into an existing video, and they can be made to appear as if they performed actions that occurred in the original video. Some deepfakes circulating on the internet now are very difficult to identify as manipulated media, and present a serious risk for the spread of deceitful content. In an age where communication technologies inundate us with an abundance of information daily, determining what material is veritable and what is fabricated is a responsibility we all share.
@@ -30,6 +30,7 @@ I took on this project with the goal of identifying tools for detecting deepfake
 
 This project demonstrates that deep learning models trained for object detection are a promising method for curbing the potential influence of deepfakes. A more detailed write-up of the project follows below.
 
+
 # Introduction
 Thanks to the widespread availability and relative ease of use of editing tools, manipulation of media content is becoming more commonplace in modern society. Such alterations, if they go viral - largely through social media platforms such as Facebook, Instagram, and Twitter - have the potential to spread misinformation that may sway public perception and opinion. In short, manipulated videos can make it appear as if events happened, when in reality they did not. A [doctored video](https://www.nytimes.com/2019/05/24/us/politics/pelosi-doctored-video.html) of United States Speaker of the House Nancy Pelosi famously went viral in May 2019, where the video was edited to create the appearance that Pelosi was slurring her speech and spread through social media by prominent U.S. political figures. Some of the social media corporations have been working to raise awareness of misinformation circulating on their sites - in March 2020 Twitter tagged a tweet as "Manipulated media" for the first time. The [tweet](https://www.washingtonpost.com/technology/2020/03/08/twitter-flags-video-retweeted-by-president-trump-manipulated-media/) in question featured an edited video of a speech delivered by U.S. presidential candidate Joe Biden, where he appears to endorse the reelection of Trump. This too was shared by well-known individuals in U.S. politics.
 
@@ -57,11 +58,21 @@ In order to have a model learn which annotated faces in my dataset were real or 
 </p>
 <p>&nbsp;</p>
 
-BRIEFLY, THIS IS HOW SSD WORKS....
+The SSD model is able to detect objects through a series of different sized feature maps. To start, images are run through a base feature extractor network. In this project, the base network was the pre-trained weights of the VCG-16 neural net. The base network then feeds into SSD model layers trained for object detection/classification, which is where the feature maps come in. A feature map is a fixed grid of object detectors. Each cell in the feature map grid contains three to six object detectors of various aspect ratios, and each of these object detectors predicts one bounding box for an object - if the object’s center falls within the grid cell. A bounding box prediction includes the bounding box coordinates and probabilities for the class of that bounding box. In actuality, absolute bounding box coordinates are not predicted, but rather offsets from the pre-sized anchor boxes corresponding to each object detector. Therefore, each feature map grid cell will produce three to six bounding box predictions (one per object detector).
 
-The SSD model was run using the TensorFlow backend for Keras and the Python code for doing so was provided in the invaluable GitHub repository [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) by Pierluigi Ferrari. Because neural networks that process images require graphics processing units (GPUs) to run at reasonable speeds, I trained the SSD model on Google Cloud Platform, which allows users to harness the power of a wide variety of computing resources, including GPUs. I formatted my final annotation datasets in R to be compatible with the input required by the SSD model, and loaded my images and annotations into a Google Cloud Storage Bucket. Rather than submitting computing jobs to Google Cloud Platform through the command line - which is how AI Platform requests are typically handled - I decided to use the new [AI Platform Notebooks](https://cloud.google.com/ai-platform-notebooks). These are JupyterLab notebook instances where a user can easily alter the storage and computing resources employed by the notebook. In my case I edited my notebooks on CPUs and trained my model on a NVIDIA Tesla K80 GPU. After spending the $300 free credit offered to all new users of Google Cloud Platform, I paid a little more than $50 out-of-pocket for the storage and computing resources required by this project.
+<p float="left">
+  <img src="/assets/images/feature_map.jpg" alt="Feature Map" width="920"/>
+    <figcaption><strong>Pictoral representation of a feature map. <i>The gray lines are the feature map grid and the red boxes are the anchor boxes (one per object detector)</i> Source: <a href="https://machinethink.net/blog/object-detection/">One-stage object detection</a></strong></figcaption>
+</p>
+<p>&nbsp;</p>
 
-I used SSD model parameters designed to analyze images of size 300x300 pixels, and trained the model for 15 epochs consisting of 11,000 steps on batches of 32 images each. Training performance was assessed through the model's loss. Loss is a metric in machine-learning that can be thought of as error. An SSD model's loss consists of two components: one piece comes from locating objects in an image (comparing predicted bounding boxes to the ground truth annotated bounding boxes), and the other piece comes from classifying those identified objects (comparing predicted labels to the ground truth annotated labels). Machine-learning models iterate over the provided training dataset and "learn" by minimizing the loss. While minimizing the training loss is a good thing, it is important to strike a balance between learning the training dataset and generalizability. It is possible for a model to overlearn, where it is able to recognize the intricacies of the training dataset but does not perform well on datasets it did not train on. The validation dataset helps monitor a model's generalizability during training, and generally the best fit model will be the one with the smallest validation loss.
+Because each feature map grid cell produces three to six bounding box predictions and there is almost certainly not that many objects in a given image, most of the predicted bounding boxes will be garbage. To help sort out the unwanted predictions from the real objects, SSD models include a special background class that may be predicted at a location. A background class prediction indicates that the model does not believe an object exists at a location, and these predicted bounding boxes can be discarded. After the background class predictions have been removed, there will still be overlapping bounding box predictions made on the same object from neighboring grid cells. These overlaps are handled with non-maximum suppression, which keeps the most likely predictions and suppresses the ones that overlap the best prediction by a certain threshold.
+
+For an excellent and more detailed explanation of how one-stage object detection models (YOLO and SSD) work, check out this [blog post](https://machinethink.net/blog/object-detection/) by Matthijs Hollemans.
+
+My SSD model was run using the TensorFlow backend for Keras and the Python code for doing so was provided in the invaluable GitHub repository [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) by Pierluigi Ferrari. Because neural networks that process images require graphics processing units (GPUs) to run at reasonable speeds, I trained the SSD model on Google Cloud Platform, which allows users to harness the power of a wide variety of computing resources, including GPUs. I formatted my final annotation datasets in R to be compatible with the input required by the SSD model, and loaded my images and annotations into a Google Cloud Storage Bucket. Rather than submitting computing jobs to Google Cloud Platform through the command line - which is how AI Platform requests are typically handled - I decided to use the new [AI Platform Notebooks](https://cloud.google.com/ai-platform-notebooks). These are JupyterLab notebook instances where a user can easily alter the storage and computing resources employed by the notebook. In my case I edited my notebooks on CPUs and trained my model on a NVIDIA Tesla K80 GPU. After spending the $300 free credit offered to all new users of Google Cloud Platform, I paid a little more than $50 out-of-pocket for the storage and computing resources required by this project.
+
+I used SSD model parameters designed to analyze images of size 300x300 pixels, and trained the model for 15 epochs consisting of 11,000 steps on batches of 32 images each. Each epoch took about 16 hours to run. Training performance was assessed through the model's loss. Loss is a metric in machine-learning that can be thought of as error. An SSD model's loss consists of two components: one piece comes from locating objects in an image (comparing predicted bounding boxes to the ground truth annotated bounding boxes), and the other piece comes from classifying those identified objects (comparing predicted labels to the ground truth annotated labels). Machine-learning models iterate over the provided training dataset and "learn" by minimizing the loss. While minimizing the training loss is a good thing, it is important to strike a balance between learning the training dataset and generalizability. It is possible for a model to overlearn, where it is able to recognize the intricacies of the training dataset but does not perform well on datasets it did not train on. The validation dataset helps monitor a model's generalizability during training, and generally the best fit model will be the one with the smallest validation loss.
 
 After model training was completed, I evaluated each epoch using the test dataset. Evaluation of object detection models typically involves the creation of precision-recall curves for each object class (in this case, real and fake). Precision is the number of correct predictions divided by the number of total predictions per class, and recall is the number of correct predictions divided by the number of objects per class. Each point on the precision-recall curve is a matched precision-recall score for a specific confidence threshold in predictions made by the model. The higher the confidence threshold, the more sure the model is about its predictions. The confidence thresholds are varied to provide many matched precision-recall scores, which are then plotted to create the precision-recall curve. At high confidence thresholds, precision is expected to be high but recall to be low, as the model is very sure about its predictions so they are likely to be correct, but objects the model is not as confident about will be missed. Alternatively, at low confidence thresholds, precision is expected to be low but recall to be high, as the model will make a lot of incorrect predictions but will also find most of the objects. The area under a precision-recall curve provides the average precision (AP) for a specific object class. The average AP of all object classes can be calculated to provide the mean average precision (mAP) for a trained model.
 
@@ -74,43 +85,61 @@ My GitHub repository for this project can be found [here](https://github.com/Ben
 ## Training and Evaluation
 During training, the validation loss indicated that the model trained after epoch 8 (88,000 steps) provided the best model fit. Epoch 8 loss equaled 2.5144, and validation loss equaled 4.1434. Beyond that, the model began to be overfit, with the training loss continuing to decrease and the validation loss increasing. Calculation of the mAP for each epoch confirmed this conclusion.
 
-![**mAP by Epoch**](Post-2010_mAP_by_Epoch.JPG)
+<p float="left">
+  <img src="/assets/images/Post-2010_mAP_by_Epoch.JPG" alt="mAP by Epoch" width="920"/>
+    <figcaption><strong>mAP by Epoch</strong></figcaption>
+</p>
+<p>&nbsp;</p>
 
 The precision-recall curves for the epoch 8 SSD300 model demonstrate that the model was able to detect real faces with an AP of 40.2%, while it was able to detect fake faces with an AP of 79.6%.
 
-![**Epoch 8 SSD300 Precision-Recall Curves**](ssd300_epoch-08_eval_post-2010.png)
+<p float="left">
+  <img src="/assets/images/ssd300_epoch-08_eval_post-2010.png" alt="Precision-Recall Curves" width="920"/>
+    <figcaption><strong>Epoch 8 SSD300 precision-recall curves</strong></figcaption>
+</p>
+<p>&nbsp;</p>
 
 ## Prediction
 The epoch 8 SSD300 model version was used to generate predictions on selected images. Out of all the images with ground truth annotations that I provided to the model for prediction, the model frequently predicted the correct face location and class; occasionally the model incorrectly predicted a fake face as real. The confidence score is printed beside the predicted face class.
 
-<figure>
-  <img src="practice_video_fake1_00175_predict.png" alt="drawing" width="450"/>
-  <img src="practice_video_fake2_01045_predict.png" alt="drawing" width="450"/>
-    <figcaption>**Real Faces Correctly Predicted as Real.** *The green bounding box is the ground truth annotation.*</figcaption>
-</figure>
+<p float="left">
+  <img src="/assets/images/practice_video_fake1_00112_predict.png" alt="Real Face Predicted as Real" width="460"/>
+  <img src="/assets/images/practice_video_fake1_00175_predict.png" alt="Real Face Predicted as Real" width="460"/>
+  <img src="/assets/images/practice_video_fake2_01045_predict.png" alt="Real Face Predicted as Real" width="460"/>
+ <img src="/assets/images/practice_video_fake2_01060_predict.png" alt="Real Face Predicted as Real" width="460"/>
+    <figcaption><strong>Real faces correctly predicted as real. <i>The green bounding box is the ground truth annotation</i></strong></figcaption>
+</p>
 <p>&nbsp;</p>
 
-<figure>
-  <img src="practice_video_fake1_00209_predict.png" alt="drawing" width="450"/>
-  <img src="practice_video_fake2_00466_predict.png" alt="drawing" width="450"/>
-    <figcaption>**Fake Faces Correctly Predicted as Fake.** *The green bounding box is the ground truth annotation.*</figcaption>
-</figure>
+<p float="left">
+  <img src="/assets/images/practice_video_fake1_00209_predict.png" alt="Fake Face Predicted as Fake" width="460"/>
+  <img src="/assets/images/practice_video_fake2_00466_predict.png" alt="Fake Face Predicted as Fake" width="460"/>
+    <figcaption><strong>Fake faces correctly predicted as fake. <i>The green bounding box is the ground truth annotation</i></strong></figcaption>
+</p>
 <p>&nbsp;</p>
 
-<figure>
-  <img src="practice_video_fake1_00317_predict.png" alt="drawing" width="450"/>
-  <img src="practice_video_fake2_00234_predict.png" alt="drawing" width="450"/>
-    <figcaption>**Fake Faces Incorrectly Predicted as Real.** *The green bounding box is the ground truth annotation.*</figcaption>
-</figure>
+<p float="left">
+  <img src="/assets/images/practice_video_fake1_00317_predict.png" alt="Fake Face Predicted as Real" width="460"/>
+  <img src="/assets/images/practice_video_fake2_00234_predict.png" alt="Fake Face Predicted as Real" width="460"/>
+    <figcaption><strong>Fake faces incorrectly predicted as real. <i>The green bounding box is the ground truth annotation</i></strong></figcaption>
+</p>
 <p>&nbsp;</p>
 
-Finally, predictions were run on a few deepfake images without ground truth annotations, and the model overall performed well on these.
+Predictions were also run on a few deepfake images without ground truth annotations, and the model overall performed well on these.
 
-<figure>
-  <img src="buscemi_lawrence_00001_predict.png" alt="drawing" width="450"/>
-  <img src="offerman_full_house_01676_predict.png" alt="drawing" width="450"/>
-    <figcaption>**Predictions on Images Without Ground Truth**</figcaption>
-</figure>
+<p float="left">
+  <img src="/assets/images/buscemi_lawrence_00001_predict.png" alt="No ground truth" width="460"/>
+  <img src="/assets/images/offerman_full_house_01677_predict.png" alt="No ground truth" width="460"/>
+    <figcaption><strong>Predictions on images without ground truth</strong></figcaption>
+</p>
+<p>&nbsp;</p>
+
+And finally, an original image.
+
+<p float="left">
+  <img src="/assets/images/me_predict.png" alt="Me!" width="460"/>
+    <figcaption><strong>Me!</strong></figcaption>
+</p>
 
 
 # Discussion
@@ -119,12 +148,12 @@ The aim of this project was to train a machine-learning model to discriminate be
 
 Despite the model not being perfect, results are encouraging, as they show that the power of object detection models can be utilized to help guard against the danger of manipulated videos. As deepfakes continue to become more sophisticated, developing accurate methods for detection is critical. Deepfake videos will likely only continue to increase in prevalence, and they are essentially guaranteed to play some kind of role in the upcoming United States presidential election.
 
-Overall I am very satisfied with how this initial analysis turned out. This was my first time conducting a machine-learning project from start to finish, and most of the methods I used were self-taught (through the help of Google, of course). That being said, none of this would have been possible without the Clay Sciences annotation platform, the SSD code provided by Pierluigi Ferrari, and the computing resources available on Google Cloud Platform. To those individuals and entities, I extend my sincere thanks. In particular, annotating with Clay Sciences cost less than 1/3 of the price of other annotation platforms, which made completing this project solo a realistic possibility.
+Overall I am very satisfied with how this initial analysis turned out. This was my first time conducting a machine-learning project from start to finish, and most of the methods I used were self-taught (through the help of Google, of course). That being said, none of this would have been possible without the Clay Sciences annotation platform, the SSD Python code provided by Pierluigi Ferrari, and the computing resources available on Google Cloud Platform. To those individuals and entities, I extend my sincere thanks. In particular, annotating with Clay Sciences cost less than 1/3 of the price of other annotation platforms, which made completing this project solo a realistic possibility.
 
 ## Limitations and Next Steps
-This project, while providing encouraging results, was certainly not without its limitations. As mentioned above, once the videos were annotated they were sliced into frames and analyzed as independent units. This of course is not how the data exists in reality, as frames sourced from the same video are correlated, and this temporal relationship between frames would provide valuable information to a detection model. In future work, the frames should be analyzed in a longitudinal manner, with learned information from frames of the same video being applied across all frames of that video. Doing so would allow one to arrive at an overall prediction of a video as an original or a deepfake. 
+This project, while providing encouraging results, was certainly not without its limitations. Once the videos were annotated they were sliced into frames and analyzed as independent units. This of course is not how the data exists in reality, as frames sourced from the same video are correlated, and this temporal relationship between frames would provide valuable information to a detection model. In future work, the frames should be analyzed in a longitudinal manner, with learned information from frames of the same video being applied across all frames of that video. Doing so would allow one to arrive at an overall prediction of a video as an original or a deepfake. 
 
-Finally, as I discussed in the introduction, this project focused solely on visual deepfakes, while audio deepfakes do exist as well. An optimal deepfake detection model would be able to search for both visual and audio deepfakes, and extending this model to also analyze audio data can serve as the subject for future work.
+Additionally, this project focused solely on visual deepfakes, while audio deepfakes do exist as well. An optimal deepfake detection model would be able to search for both visual and audio deepfakes, and extending this model to also analyze audio data can serve as the subject for future work.
 
 Of note, there is a contest hosted by some of the giant technology corporations, the [Deepfake Detection Challenge](https://www.kaggle.com/c/deepfake-detection-challenge), where competitors must predict the overall probability of a video being a deepfake. The dataset provided by the contest hosts includes both visual and audio deepfakes, so it will be interesting to see what analytic methods are utilized to predict on both visual and audio data across entire videos.
 
