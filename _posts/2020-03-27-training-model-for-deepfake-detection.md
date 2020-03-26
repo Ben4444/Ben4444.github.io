@@ -60,7 +60,7 @@ In order to have a model learn which annotated faces in my dataset were real or 
 
 The SSD model is able to detect objects through a series of different sized feature maps. To start, images are run through a base feature extractor network. In this project, the base network was the pre-trained weights of the VCG-16 neural net. The base network then feeds into SSD model layers trained for object detection/classification, which is where the feature maps come in. A feature map is a fixed grid of object detectors. Each cell in the feature map grid contains three to six object detectors of various aspect ratios, and each of these object detectors predicts one bounding box for an object - if the object’s center falls within the grid cell. A bounding box prediction includes the bounding box coordinates and probabilities for the class of that bounding box. In actuality, absolute bounding box coordinates are not predicted, but rather offsets from the pre-sized anchor boxes corresponding to each object detector. Therefore, each feature map grid cell will produce three to six bounding box predictions (one per object detector).
 
-<p float="center">
+<p style="text-align:center">
   <img src="/assets/images/feature_map.jpg" alt="Feature Map" width="500"/>
     <figcaption><strong>Pictoral representation of a feature map. <i>The gray lines are the feature map grid and the red boxes are the anchor boxes (one per object detector).</i> Source: <a href="https://machinethink.net/blog/object-detection/">One-stage object detection</a></strong></figcaption>
 </p>
@@ -134,11 +134,10 @@ Predictions were also run on a few deepfake images without ground truth annotati
 </p>
 <p>&nbsp;</p>
 
-And finally, an original image.
+And finally, an original image - me!
 
 <p float="left">
   <img src="/assets/images/me_predict.png" alt="Me!" width="300"/>
-    <figcaption><strong>Me!</strong></figcaption>
 </p>
 
 
